@@ -1,6 +1,7 @@
 #include "DemoH264MediaSubsession.h"
 #include "DemoH264FrameSource.h"
 #include "H264VideoStreamFramer.hh"
+#include "H264VideoRTPSink.hh"
 
 
 DemoH264MediaSubsession::DemoH264MediaSubsession(UsageEnvironment& env, const char*fileName, bool reuseFirstSource)
@@ -37,9 +38,7 @@ FramedSource* DemoH264MediaSubsession::createNewStreamSource(unsigned clientsess
 
 RTPSink* DemoH264MediaSubsession::createNewRTPSink(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, FramedSource* inputSource)
 {
-	return NULL;
+	return H264VideoRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic);
 }
-
-
 
 
