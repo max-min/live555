@@ -34,15 +34,15 @@ int main(int argc, char* argv[])
 	
 
 	UserAuthenticationDatabase* authDB = NULL;
-#if ACCESS_CONTROL 
+#if ACCESS_CONTROL   // 认证
 	authDB = new UserAuthenticationDatabase;
 	authDB->addUserRecord(argv[1], argv[2]);
 #endif 
 
-
 	RTSPServer* rtspServer = NULL;
-	portNumBits rtspServerPortNum = 554;
-	
+	portNumBits rtspServerPortNum = 554; // rtsp port 
+
+	// 建立RTSP服务
 	rtspServer = RTSPServer::createNew(*env, rtspServerPortNum, authDB);
 	if( rtspServer == NULL)
 	{
@@ -57,8 +57,12 @@ int main(int argc, char* argv[])
 	 //H264 Subsession 
 	const char* streamName = "h264_streaming";
 	const char* inputName = "tc10.264";
+
 	
 	ServerMediaSession *sms = ServerMediaSession::createNew(*env, streamName, streamName, decription);
+
+	// 添加自己派生的子类MediaSubsession类，并添加到ServerMediaSession
+	// 当有client链接上过来的时候，会调用server的lookup寻找次streamName的subsession
 	sms->addSubsession(DemoH264MediaSubsession::createNew(*env, inputName, false));
 	
 
@@ -68,6 +72,7 @@ int main(int argc, char* argv[])
 	*env <<  "URL:" << url << "\n";
 	
 
+	// loop and not come back~
 	env->taskScheduler().doEventLoop();
 	
 	return 0;

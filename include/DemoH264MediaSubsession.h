@@ -18,8 +18,6 @@
 #ifndef __DEMOH264MEDIASUBSESSION_H__
 #define __DEMOH264MEDIASUBSESSION_H__
 
-//#include "H264VideoFileServerMediaSubsession.hh"
-
 #include "FileServerMediaSubsession.hh"
 
 class DemoH264MediaSubsession:public FileServerMediaSubsession
@@ -32,6 +30,7 @@ class DemoH264MediaSubsession:public FileServerMediaSubsession
 		
 	protected:
 		// virtual function  new source and rtplink
+		// 继承父类的虚函数，必须自己实现
 		FramedSource* createNewStreamSource(unsigned clientsessionId, unsigned& estBitrate);
 		RTPSink* createNewRTPSink(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, FramedSource* inputSource);
 	public:

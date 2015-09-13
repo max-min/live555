@@ -32,7 +32,6 @@ class DemoH264FrameSource:public FramedSource
 		~DemoH264FrameSource();
 	private:
 		virtual void doGetNextFrame();
-		//int TransportData(unsigned char* to, unsigned maxSize);
 		
 	protected:
 		FILE *fp;
