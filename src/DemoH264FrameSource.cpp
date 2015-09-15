@@ -1,12 +1,15 @@
 #include <stdio.h>
 #include "DemoH264FrameSource.h"
 
-DemoH264FrameSource::DemoH264FrameSource(UsageEnvironment& env, const char* fileName,
-		unsigned int preferredFrameSize, unsigned int playTimePerFrame):FramedSource(env)
+DemoH264FrameSource::DemoH264FrameSource(UsageEnvironment& env, long sourceHandle, int sourceType):
+	FramedSource(env), fSourceHandle(sourceHandle), fLastBufSize(0), fLeftDataSize(0), fSourceType(sourceType), fFirstFrame(1)
 {
-	// ready for the source data; 
 	// 打开流媒体文件，在实时流时，这里就是开始传送流之前的一些准备工作
-	fp = fopen(fileName, "rb");
+	fDatabuf = (char*)malloc(2*1024*1024);
+	if(fDatabuf == NULL )
+	{
+		printf(" create source data buf failed!\n");
+	}
 }
 
 
@@ -16,10 +19,17 @@ DemoH264FrameSource::~DemoH264FrameSource()
 }
 
 
-DemoH264FrameSource* DemoH264FrameSource::createNew(UsageEnvironment& env, const char* fileName, 
-		unsigned preferredFrameSize ,  unsigned playTimePerFrame )
+DemoH264FrameSource* DemoH264FrameSource::createNew(UsageEnvironment& env, int streamType, int channelNO, int sourceType)
 {
-	return new DemoH264FrameSource(env, fileName, preferredFrameSize, playTimePerFrame);
+	//通过streamType和channelNO来创建source，向前端请求对应的码流//  
+	long souceHandle = openStreamHandle(channelNO, streamType);	
+	if(sourceHandle == 0)
+	{
+		printf("open the source stream failed!\n");
+		return NULL;
+	}
+	return new DemoH264FrameSource(env, sourceHandle, sourceType);
+	
 }
 
 
@@ -36,21 +46,56 @@ long filesize(FILE *stream)
 
 void DemoH264FrameSource::doGetNextFrame()
 {
-	// 判断是否超过最长，分开处理
-	if( filesize(fp) > fMaxSize)
+	int ret = 0;
+	struct timeval pts;
+
+	//调用设备接口获取一帧数据
+	if (fLeftDataSize == 0)
 	{
-		fFrameSize = fread(fTo, 1, fMaxSize, fp);	
+
+		ret = getStreamData(fSourceHandle, fDataBuf,&fLastBufSize, &fLeftDataSize,fSourceType, &pts);
+		if (ret <= 0)
+		{
+			printf("getStreamData failed!\n");
+			return;
+		}
 	}
+
+	int fNewFramesize = fLeftDataSize;
+	if(fNewFramesize > fMaxSize)
+	{
+		fFrameSize = fMaxSize;
+		fNumTruncatedBytes = newFrameSize - fMaxSize;
+		fLeftDataSize = newFrameSize - fMaxSize;
+		memmove(fTo, fDataBuf, fFrameSize);
+		memmove(fDataBuf, fDataBuf+fMaxSize, fLeftDataSize);	
+	} 
 	else 
 	{
-		fFrameSize = fread(fTo,1, filesize(fp), fp);
-		fseek(fp, 0, SEEK_SET);
+		fFrameSize = newFrameSize;
+		fLeftDataSize = 0;          //注意
+		memmove(fTo, fDataBuf, fFrameSize);
 	}
-	
 
-	nextTask() = envir().taskScheduler().scheduleDelayedTask(0,
-			(TaskFunc*)FramedSource::afterGetting, this); 
-	// 表示延迟0秒后再执行 afterGetting 函数
+		gettimeofday(&fPresentationTime, NULL);
 	
+		if (fFirstFrame)
+		{
+			fDurationInMicroseconds = 40000;
+			nextTask() = envir().taskScheduler().scheduleDelayedTask(100000, 
+										(TaskFunc*)FramedSource::afterGetting, this);
+			fFirstFrame = 0;
+		}
+		else
+		{
+			FramedSource::afterGetting(this);
+		}
+
+	
+}
+
+void DemoH264FrameSource::doStopGetFrame()
+{
+	closeStreamHandle(fSourceHandle);
 }
 

@@ -4,11 +4,9 @@
 #include "H264VideoRTPSink.hh"
 
 
-DemoH264MediaSubsession::DemoH264MediaSubsession(UsageEnvironment& env, const char*fileName, bool reuseFirstSource)
-	:FileServerMediaSubsession(env, fileName, reuseFirstSource)
+DemoH264MediaSubsession::DemoH264MediaSubsession(UsageEnvironment& env, int streamType, int videoType, int channelNO, bool reuseFirstSource, portNumbits initalNumPort)
+	:OnDemandServerMediaSubsession(env, reuseFirstSource), fStreamType(streamType), fVideoType(videoType), fChannelNO(channelNO)
 {
-	//传递需要的文件文件名
-	strcpy(fFileName, fileName);
 }
 
 DemoH264MediaSubsession::~DemoH264MediaSubsession()
@@ -16,33 +14,71 @@ DemoH264MediaSubsession::~DemoH264MediaSubsession()
 }
 
 
-DemoH264MediaSubsession* DemoH264MediaSubsession::createNew(UsageEnvironment& env, const char* fileName, bool reuseFirstSource)
+DemoH264MediaSubsession* DemoH264MediaSubsession::createNew(UsageEnvironment& env, int streamType, int videoType, int channelNO, 
+		bool reuseFirstSource, portNumbits initalNumPort)
 {
-	DemoH264MediaSubsession* sms = new DemoH264MediaSubsession(env, fileName, reuseFirstSource);
+	DemoH264MediaSubsession* sms = new DemoH264MediaSubsession(env, streamType, videoType, channelNO, reuseFirstSource, initalNumPort);
 	return sms;
 }
 
 
 FramedSource* DemoH264MediaSubsession::createNewStreamSource(unsigned clientsessionId, unsigned& estBitrate)
 {
-	estBitrate = 1000;
+	//estBitrate = 1000;
 
-	// 创建需要的source，后面再实时流的创建的时候，这里会再进一步说明
-	DemoH264FrameSource* source = DemoH264FrameSource::createNew(envir(), fFileName);
-	if ( source == NULL )
-	{
-		envir() << " new source failed!\n";
+	//这里根据实际请求的类型创建不同的source对象
+	if(fVideoType == 0x01)
+	{ // H264 video 
+		estBitrate = 2000; // kbps 
+		DemoH264FrameSource * source = DemoH264FrameSource::createNew(envir(), fStreamType, fChannelNO, 0);
+		if ( source == NULL )
+		{
+			printf("create source failed videoType:%d!\n", fVideoType );
+			return NULL;
+		}
+		return H264VideoStreamFramer::createNew(envir(), source);
 	}
-	
-	return H264VideoStreamFramer::createNew(envir(), source);
+	else if ( fVideoType == 0x2) 
+	{// Mpeg-4 video  
+		
+	}
+	else if( fVideoType == 0x04)
+	{ // G711 audio 
+		estBitrate = 128; // kbps 
+		DemoH264FrameSource * source = DemoH264FrameSource::createNew(envir(), fStreamType, fChannelNO, 1);
+		if ( source == NULL )
+		{
+			printf("create source failed videoType:%d!\n", fVideoType );
+			return NULL;
+		}
+		return source;
+	}
+	else 
+	{ // unknow type
+		
+	}
+	return NULL;	
 }
 
 
 RTPSink* DemoH264MediaSubsession::createNewRTPSink(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, FramedSource* inputSource)
 {
-	// 创建rtpSink
-	// 也就是Source的消费者
-	return H264VideoRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic);
+	// 这里可以根据类型的不同创建不同sink 
+	// 根据实际开发需要，继承不同的子类
+	if( fVideoType == 0x01)
+		return H264VideoRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic);
+	else if( fVideoType == 0x02)
+	{ //  Mpeg-4
+		
+	}
+	else if(fVideoType == 0x04)
+	{// G711 audio
+		
+	}
+	else 
+	{ // unknow type ;
+		return NULL;
+	}
 }
 
 

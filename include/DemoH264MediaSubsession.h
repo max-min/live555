@@ -18,14 +18,17 @@
 #ifndef __DEMOH264MEDIASUBSESSION_H__
 #define __DEMOH264MEDIASUBSESSION_H__
 
-#include "FileServerMediaSubsession.hh"
+//#include "FileServerMediaSubsession.hh"
+#include "OnDemandServerMediaSubsession.hh"
 
-class DemoH264MediaSubsession:public FileServerMediaSubsession
+class DemoH264MediaSubsession:public OnDemandServerMediaSubsession 
 {
 	public:
-		static DemoH264MediaSubsession* createNew(UsageEnvironment& env, const char* fileName, bool reuseFirstSource);
+		static DemoH264MediaSubsession* createNew(UsageEnvironment& env, int streamType, int videoType, int channelNO, 
+				bool reuseFirstSource, portNumbits initalNumPort = 6970);
 	protected:
-		DemoH264MediaSubsession(UsageEnvironment& env, const char*fileName, bool reuseFirstSource);
+		DemoH264MediaSubsession(UsageEnvironment& env, int streamType, int videoType, int channelNO, 
+				bool reuseFirstSource, portNumbits initalNumPort);
 		~DemoH264MediaSubsession();
 		
 	protected:
@@ -33,9 +36,13 @@ class DemoH264MediaSubsession:public FileServerMediaSubsession
 		// 继承父类的虚函数，必须自己实现
 		FramedSource* createNewStreamSource(unsigned clientsessionId, unsigned& estBitrate);
 		RTPSink* createNewRTPSink(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, FramedSource* inputSource);
-	public:
-		char fFileName[48];
 	
+		char const* sdpLines();
+	public:
+		int fStreamType;
+		int fVideoType;
+		int fChannelNO;
+		
 };
 
 

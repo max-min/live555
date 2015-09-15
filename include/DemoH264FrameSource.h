@@ -32,9 +32,16 @@ class DemoH264FrameSource:public FramedSource
 		~DemoH264FrameSource();
 	private:
 		virtual void doGetNextFrame();
+	public:
+		void doStopGetFrame();
+	public:
+		char *fDataBuf;
+		long fSourceHandle; 
+		int fLastBufSize;
+		int fLeftDataSize;
+		int fSourceType;
+		int fFirstFrame;
 		
-	protected:
-		FILE *fp;
 };
 
 
