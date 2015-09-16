@@ -18,62 +18,24 @@
 
 #include <stdio.h>
 
-#include "BasicUsageEnvironment.hh"
-#include "RTSPServer.hh"
-#include "DemoH264MediaSubsession.h"
-
+#include "DemoH264Interface.h"
 
 int main(int argc, char* argv[])
 {
-	
-	printf(" live555 stream start\n");
-	
-	// Begin by setting up the live555 usage environment 
-	TaskScheduler* scheduler = BasicTaskScheduler::createNew();
-	UsageEnvironment* env    = BasicUsageEnvironment::createNew(*scheduler);
-	
 
-	UserAuthenticationDatabase* authDB = NULL;
-#if ACCESS_CONTROL   // 认证
-	authDB = new UserAuthenticationDatabase;
-	authDB->addUserRecord(argv[1], argv[2]);
-#endif 
+	// Init
+	// 添加一些需要设置的rtsp服务信息，如用户名，密码 端口等，通过参数传递
+	void* param = NULL;
+	DemoH264Interface::createNew()->InitLive555(param);
 
-	RTSPServer* rtspServer = NULL;
-	portNumBits rtspServerPortNum = 554; // rtsp port 
-
-	// 建立RTSP服务
-	rtspServer = RTSPServer::createNew(*env, rtspServerPortNum, authDB);
-	if( rtspServer == NULL)
+	// start 
+	if( -1 == DemoH264Interface::createNew()->startLive555())
 	{
-		*env << " create RTSPServer Failed:" << env->getResultMsg() << "\n";
+		DBG_LIVE555_PRINT(" start live555 moudle failed!\n");
 		return 0;
 	}
 
-	
-	const char* decription = " Session Test By live555 Stream";
-	
-
-	 //H264 Subsession 
-	const char* streamName = "h264_streaming";
-	const char* inputName = "tc10.264";
-
-	
-	ServerMediaSession *sms = ServerMediaSession::createNew(*env, streamName, streamName, decription);
-
-	// 添加自己派生的子类MediaSubsession类，并添加到ServerMediaSession
-	// 当有client链接上过来的时候，会调用server的lookup寻找次streamName的subsession
-	sms->addSubsession(DemoH264MediaSubsession::createNew(*env, inputName, false));
-	
-
-	rtspServer->addServerMediaSession(sms);
-	
-	char* url = rtspServer->rtspURL(sms);	
-	*env <<  "URL:" << url << "\n";
-	
-
-	// loop and not come back~
-	env->taskScheduler().doEventLoop();
-	
+	//stop 
+	DemoH264Interface::createNew()->stopLive555();
 	return 0;
 }

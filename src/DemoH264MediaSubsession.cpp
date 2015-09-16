@@ -1,5 +1,7 @@
 #include "DemoH264MediaSubsession.h"
 #include "DemoH264FrameSource.h"
+#include "DemoH264Interface.h"
+
 #include "H264VideoStreamFramer.hh"
 #include "H264VideoRTPSink.hh"
 
@@ -33,7 +35,7 @@ FramedSource* DemoH264MediaSubsession::createNewStreamSource(unsigned clientsess
 		DemoH264FrameSource * source = DemoH264FrameSource::createNew(envir(), fStreamType, fChannelNO, 0);
 		if ( source == NULL )
 		{
-			printf("create source failed videoType:%d!\n", fVideoType );
+			DBG_LIVE555_PRINT("create source failed videoType:%d!\n", fVideoType );
 			return NULL;
 		}
 		return H264VideoStreamFramer::createNew(envir(), source);
@@ -48,7 +50,7 @@ FramedSource* DemoH264MediaSubsession::createNewStreamSource(unsigned clientsess
 		DemoH264FrameSource * source = DemoH264FrameSource::createNew(envir(), fStreamType, fChannelNO, 1);
 		if ( source == NULL )
 		{
-			printf("create source failed videoType:%d!\n", fVideoType );
+			DBG_LIVE555_PRINT("create source failed videoType:%d!\n", fVideoType );
 			return NULL;
 		}
 		return source;

@@ -43,7 +43,7 @@ class DemoH264RTSPServer:public RTSPServer
 		virtual ServerMediaSession* lookupServerMediaSession(const char* streamName);
 		virtual DemoH264RTSPServer::DemoH264RTSPClientSession* createNew(unsigned clietnSessionID);
 
-		static int stopDemoH264RTSPServer(void* param);
+	    int stopDemoH264RTSPServer();
 	public:
 		std::list<DemoH264RTSPServer::DemoH264RTSPClientSession*>  fClientSessionList;
 		bool fRTSPServerState; //RTSPServer ÔËÐÐ×´Ì¬	

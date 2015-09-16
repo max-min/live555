@@ -1,5 +1,6 @@
-#include <stdio.h>
+
 #include "DemoH264FrameSource.h"
+#include "DemoH264Interface.h"
 
 DemoH264FrameSource::DemoH264FrameSource(UsageEnvironment& env, long sourceHandle, int sourceType):
 	FramedSource(env), fSourceHandle(sourceHandle), fLastBufSize(0), fLeftDataSize(0), fSourceType(sourceType), fFirstFrame(1)
@@ -8,7 +9,7 @@ DemoH264FrameSource::DemoH264FrameSource(UsageEnvironment& env, long sourceHandl
 	fDatabuf = (char*)malloc(2*1024*1024);
 	if(fDatabuf == NULL )
 	{
-		printf(" create source data buf failed!\n");
+		DBG_LIVE555_PRINT(" create source data buf failed!\n");
 	}
 }
 
@@ -25,7 +26,7 @@ DemoH264FrameSource* DemoH264FrameSource::createNew(UsageEnvironment& env, int s
 	long souceHandle = openStreamHandle(channelNO, streamType);	
 	if(sourceHandle == 0)
 	{
-		printf("open the source stream failed!\n");
+		DBG_LIVE555_PRINT("open the source stream failed!\n");
 		return NULL;
 	}
 	return new DemoH264FrameSource(env, sourceHandle, sourceType);
@@ -52,7 +53,7 @@ void DemoH264FrameSource::doGetNextFrame()
 	//调用设备接口获取一帧数据
 	if (fLeftDataSize == 0)
 	{
-
+		
 		ret = getStreamData(fSourceHandle, fDataBuf,&fLastBufSize, &fLeftDataSize,fSourceType, &pts);
 		if (ret <= 0)
 		{
