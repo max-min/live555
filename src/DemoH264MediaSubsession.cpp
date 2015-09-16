@@ -6,7 +6,7 @@
 #include "H264VideoRTPSink.hh"
 
 
-DemoH264MediaSubsession::DemoH264MediaSubsession(UsageEnvironment& env, int streamType, int videoType, int channelNO, bool reuseFirstSource, portNumbits initalNumPort)
+DemoH264MediaSubsession::DemoH264MediaSubsession(UsageEnvironment& env, int streamType, int videoType, int channelNO, bool reuseFirstSource, portNumBits initalNumPort)
 	:OnDemandServerMediaSubsession(env, reuseFirstSource), fStreamType(streamType), fVideoType(videoType), fChannelNO(channelNO)
 {
 }
@@ -17,7 +17,7 @@ DemoH264MediaSubsession::~DemoH264MediaSubsession()
 
 
 DemoH264MediaSubsession* DemoH264MediaSubsession::createNew(UsageEnvironment& env, int streamType, int videoType, int channelNO, 
-		bool reuseFirstSource, portNumbits initalNumPort)
+		bool reuseFirstSource, portNumBits initalNumPort)
 {
 	DemoH264MediaSubsession* sms = new DemoH264MediaSubsession(env, streamType, videoType, channelNO, reuseFirstSource, initalNumPort);
 	return sms;
@@ -83,4 +83,15 @@ RTPSink* DemoH264MediaSubsession::createNewRTPSink(Groupsock* rtpGroupsock, unsi
 	}
 }
 
+
+/* 根据开发实际情况填写SDP信息 */
+/*
+char const* DemoH264MediaSubsession::sdpLines()
+{
+	// create sdp info 
+	
+
+	return  fSDPLines;
+}
+*/
 

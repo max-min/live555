@@ -1,5 +1,7 @@
 
 #include "DemoH264RTSPServer.h"
+#include "DemoH264Interface.h"
+#include "DemoH264MediaSubsession.h"
 
 
 DemoH264RTSPServer* DemoH264RTSPServer::createNew(UsageEnvironment& env,  Port rtspPort, 
@@ -16,7 +18,7 @@ DemoH264RTSPServer* DemoH264RTSPServer::createNew(UsageEnvironment& env,  Port r
 
 
 DemoH264RTSPServer::DemoH264RTSPServer(UsageEnvironment& env, int ourSock, Port rtspPort, UserAuthenticationDatabase* authDatabase,
-		unsigned reclamationTestSeconds):RTSPSever(env, ourSock, rtspPort, authDatabase, reclamationTestSeconds), fRTSPServerState(true)
+		unsigned reclamationTestSeconds):RTSPServer(env, ourSock, rtspPort, authDatabase, reclamationTestSeconds), fRTSPServerState(true)
 {
 	 DBG_LIVE555_PRINT("create DemoH264RTSPServer \n");
 }
@@ -39,33 +41,37 @@ ServerMediaSession* DemoH264RTSPServer::lookupServerMediaSession(const char* str
 	int videoType   = 0;  // 视频 or 音频
 	int requestType = 0;  // 请求类型 实时预览 or 回放
 
-	
+
 	ServerMediaSession* sms = NULL;
-	sms = RTSPServer::lookupServerMediaSession(streamName);
-	if ( NULL == sms )
+	switch(requestType)
 	{
-		switch(requestType)
-		{
 		case 0:  // realtime 
-			sms = ServerMediaSession::createNew(envir(), streamName, NULL, NULL);
-			DemoH264MediaSubsession *session = createNew(envir(), streamType, videoType, channelNO,false);
+			sms = RTSPServer::lookupServerMediaSession(streamName);
+			if ( NULL == sms )
+			{
+				sms = ServerMediaSession::createNew(envir(), streamName, NULL, NULL);
+				DemoH264MediaSubsession *session = DemoH264MediaSubsession::createNew(envir(), streamType, videoType, channelNO, false);
 
-			sms->addSubsession(session);
+				sms->addSubsession(session);
+				this->addServerMediaSession(sms);
+			}
+			break;
+		case 1:
+			// play back
+			DBG_LIVE555_PRINT("play back request !\n");
+			break;
+		default:
+			DBG_LIVE555_PRINT("unknown  request type!\n");
+			break;
 
-			this->addServerMediaSession(sms);
-			break;
-		case 1: // play back
-			break;
-				
-			
-		}
 	}
+	return sms;
 }
 
 
-DemoH264RTSPServer::DemoH264RTSPClientSession* DemoH264RTSPServer::DemoH264RTSPClientSession::createNew(unsigned clientSessionID)
+DemoH264RTSPServer::DemoH264RTSPClientSession* DemoH264RTSPServer::createNewClientSession(unsigned clientSessionID, int clientSocket, struct sockaddr_in clientAddr)
 {
-	DemoH264RTSPServer::DemoH264RTSPClientSession* client = new DemoH264RTSPServer::DemoH264RTSPClientSession(*this, clientSessionID);
+	DemoH264RTSPServer::DemoH264RTSPClientSession* client = new DemoH264RTSPClientSession(*this, clientSessionID, clientSocket, clientAddr);
 	fClientSessionList.push_back(client);
 	DBG_LIVE555_PRINT("add client session success!\n");
 	return client;
@@ -73,12 +79,6 @@ DemoH264RTSPServer::DemoH264RTSPClientSession* DemoH264RTSPServer::DemoH264RTSPC
 
 int DemoH264RTSPServer::stopDemoH264RTSPServer()
 {
-	// 善后处理
-	if(NULL == param)
-	{
-		printf(" param error !\n");
-		return -1;
-	}
 	// 删除所有的客户端的session
 	std::list<DemoH264RTSPServer::DemoH264RTSPClientSession*> ::iterator pos =
 		this->fClientSessionList.begin();
@@ -94,20 +94,21 @@ int DemoH264RTSPServer::stopDemoH264RTSPServer()
 	
 }
 
-DemoH264RTSPServer::DemoH264RTSPClientSession::DemoH264RTSPClientSession(DemoH264RTSPServer& rtspServer, 
-	unsigned clietnSessionID):RTSPServer::RTSPClientSession(rtspServer, clietnSessionID);
+DemoH264RTSPServer::DemoH264RTSPClientSession::DemoH264RTSPClientSession(DemoH264RTSPServer& rtspServer,unsigned clietnSessionID, int clientSocket, struct sockaddr_in clientAddr):
+	RTSPServer::RTSPClientSession(rtspServer, clietnSessionID, clientSocket, clientAddr)
 {
+	
 }
 
 DemoH264RTSPServer::DemoH264RTSPClientSession::~DemoH264RTSPClientSession()
 {
 	std::list<DemoH264RTSPServer::DemoH264RTSPClientSession*> ::iterator pos =
-		(DemoH264RTSPServer&)fOurServer.fClientSessionList.begin();
-	for(pos; pos != (DemoH264RTSPServer&)fOurServer.fClientSessionList.end(); pos ++ )
+		((DemoH264RTSPServer&)fOurServer).fClientSessionList.begin();
+	for(pos; pos != ((DemoH264RTSPServer&)fOurServer).fClientSessionList.end(); pos ++ )
 	{
 		if ((*pos)->fOurSessionId == this->fOurSessionId) 
 		{
-			(DemoH264RTSPServer&)fOurServer.fClientSessionList.erase(pos);
+			((DemoH264RTSPServer&)fOurServer).fClientSessionList.erase(pos);
 			DBG_LIVE555_PRINT("client session has been delete !\n");
 			break ;
 		}

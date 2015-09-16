@@ -25,10 +25,10 @@ class DemoH264MediaSubsession:public OnDemandServerMediaSubsession
 {
 	public:
 		static DemoH264MediaSubsession* createNew(UsageEnvironment& env, int streamType, int videoType, int channelNO, 
-				bool reuseFirstSource, portNumbits initalNumPort = 6970);
+				bool reuseFirstSource, portNumBits initalNumPort = 6970);
 	protected:
 		DemoH264MediaSubsession(UsageEnvironment& env, int streamType, int videoType, int channelNO, 
-				bool reuseFirstSource, portNumbits initalNumPort);
+				bool reuseFirstSource, portNumBits initalNumPort);
 		~DemoH264MediaSubsession();
 		
 	protected:
@@ -37,7 +37,7 @@ class DemoH264MediaSubsession:public OnDemandServerMediaSubsession
 		FramedSource* createNewStreamSource(unsigned clientsessionId, unsigned& estBitrate);
 		RTPSink* createNewRTPSink(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, FramedSource* inputSource);
 	
-		char const* sdpLines();
+		//char const* sdpLines();
 	public:
 		int fStreamType;
 		int fVideoType;

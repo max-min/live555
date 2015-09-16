@@ -24,11 +24,9 @@
 class DemoH264FrameSource:public FramedSource 
 {
 	public:
-		static DemoH264FrameSource* createNew(UsageEnvironment& env, const char* fileName, 
-				unsigned preferredFrameSize = 0,  unsigned playTimePerFrame = 0);
+		static DemoH264FrameSource* createNew(UsageEnvironment& env, int streamtype, int channelno, int sourceType); 
 	protected:
-		DemoH264FrameSource(UsageEnvironment& env, const char* fileName,
-				unsigned preferredFrameSize, unsigned playTimePerFrame);
+		DemoH264FrameSource(UsageEnvironment& env, long sourceHandle, int sourceType);
 		~DemoH264FrameSource();
 	private:
 		virtual void doGetNextFrame();
@@ -37,8 +35,8 @@ class DemoH264FrameSource:public FramedSource
 	public:
 		char *fDataBuf;
 		long fSourceHandle; 
-		int fLastBufSize;
-		int fLeftDataSize;
+		unsigned fLastBufSize;
+		unsigned fLeftDataSize;
 		int fSourceType;
 		int fFirstFrame;
 		

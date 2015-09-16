@@ -19,13 +19,14 @@
 #ifndef __DEMOH264RTSPSERVER_H__
 #define __DEMOH264RTSPSERVER_H__
 
+#include <list>
 #include "RTSPServer.hh"
 
 class DemoH264RTSPServer:public RTSPServer
 {
 	public:
-		DemoH264RTSPServer* createNew(UsageEnvironment& env,  Port rtspPort = 554, 
-			UserAuthenticationDatabase* authDatabase = NULL, unsigned reclamationTestSeconds=65);
+		static DemoH264RTSPServer* createNew(UsageEnvironment& env,  Port rtspPort = 554, 
+			UserAuthenticationDatabase* authDatabase = NULL, unsigned reclamationTestSeconds = 65);
 		
 	protected:
 		DemoH264RTSPServer(UsageEnvironment& env, int ourSock, Port rtspPort, UserAuthenticationDatabase* authDatabase,
@@ -35,13 +36,13 @@ class DemoH264RTSPServer:public RTSPServer
 		class DemoH264RTSPClientSession:public RTSPServer::RTSPClientSession
 		{
 			public:
-				DemoH264RTSPClientSession(DemoH264RTSPServer& rtspServer, unsigned clientSessionID);
+				DemoH264RTSPClientSession(DemoH264RTSPServer& rtspServer, unsigned clientSessionID, int clientSocket, struct sockaddr_in clientAddr);
 				virtual ~DemoH264RTSPClientSession();
 		};
 	public:
 		// redefine
 		virtual ServerMediaSession* lookupServerMediaSession(const char* streamName);
-		virtual DemoH264RTSPServer::DemoH264RTSPClientSession* createNew(unsigned clietnSessionID);
+		virtual DemoH264RTSPServer::DemoH264RTSPClientSession* createNewClientSession(unsigned clietnSessionID, int clientSocket, struct sockaddr_in clientAddr);
 
 	    int stopDemoH264RTSPServer();
 	public:

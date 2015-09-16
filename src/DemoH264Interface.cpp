@@ -1,4 +1,5 @@
 #include "DemoH264Interface.h"
+#include "DemoH264RTSPServer.h"
 
 /*打开实时码流句柄*/
 long openStreamHandle(int channelNO, int streamType)
@@ -26,7 +27,7 @@ int getStreamData(long lHandle, char* buf, unsigned* bufsize, unsigned* leftbufs
 		return -1;
 	}
 	FrameHead_S stFrameHead;
-	memse(&stFrameHead, 0, sizeof(FrameHead_S));
+	memset(&stFrameHead, 0, sizeof(FrameHead_S));
 	FILE* fp = (FILE*)lHandle;
 	int readlen = 0;
 	// 1、先读取一帧数据的头信息
@@ -44,7 +45,7 @@ int getStreamData(long lHandle, char* buf, unsigned* bufsize, unsigned* leftbufs
 		//重新分配内存处理
 		return 0;
 	}
-	realen = fread(buf, 1, stFrameHead.FrameLen, fp);
+	readlen = fread(buf, 1, stFrameHead.FrameLen, fp);
 	if(readlen != stFrameHead.FrameLen)
 	{
 		DBG_LIVE555_PRINT("read Frame rawdata Failed!\n");
@@ -114,9 +115,10 @@ int DemoH264Interface::startLive555()
 
 	// 建立RTSP服务
 	m_rtspServer = DemoH264RTSPServer::createNew(*m_env, m_rtspServerPortNum, m_authDB);
-	if( rtspServer == NULL)
+	
+	if( m_rtspServer == NULL)
 	{
-		//*m_env << " create RTSPServer Failed:" << m_env->getResultMsg() << "\n";
+		// *m_env << " create RTSPServer Failed:" << m_env->getResultMsg() << "\n";
 		DBG_LIVE555_PRINT("create RTSPServer Failed:%s\n", m_env->getResultMsg());
 		return -1;
 	}

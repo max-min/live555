@@ -1,0 +1,10 @@
+./obj/DemoH264FrameSource.o: ./src/DemoH264FrameSource.cpp
+	g++  $(CFLAGS)  -c -o $@ $^
+./obj/DemoH264Interface.o: ./src/DemoH264Interface.cpp
+	g++  $(CFLAGS)  -c -o $@ $^
+./obj/DemoH264MediaSubsession.o: ./src/DemoH264MediaSubsession.cpp
+	g++  $(CFLAGS)  -c -o $@ $^
+./obj/DemoH264RTSPServer.o: ./src/DemoH264RTSPServer.cpp
+	g++  $(CFLAGS)  -c -o $@ $^
+./obj/main.o: ./src/main.cpp
+	g++  $(CFLAGS)  -c -o $@ $^

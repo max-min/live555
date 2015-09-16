@@ -20,7 +20,9 @@
 #include <stdio.h>
 
 #include "BasicUsageEnvironment.hh"
-#include "RTSPServer.hh"
+#include "DemoH264RTSPServer.h"
+
+#define DEBUG 
 
 #ifdef DEBUG 
 #define DBG_LIVE555_PRINT(pFmt, ...) \
@@ -80,7 +82,7 @@ class DemoH264Interface
 		UsageEnvironment* m_env;
 		UserAuthenticationDatabase* m_authDB;
 		DemoH264RTSPServer* m_rtspServer;
-		portNumBits m_rtspServerPortNum; // rtsp port 
+		int m_rtspServerPortNum; // rtsp port 
 		
 };
 
