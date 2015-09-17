@@ -38,7 +38,7 @@ ServerMediaSession* DemoH264RTSPServer::lookupServerMediaSession(const char* str
 	// 1 解析url 我这里不处理，可以自己回调接口进来处理
 	int channelNO   = 0;  // 通道号
 	int streamType  = 0;  // 码流类型
-	int videoType   = 0;  // 视频 or 音频
+	int videoType   = 1;  // 视频 or 音频
 	int requestType = 0;  // 请求类型 实时预览 or 回放
 
 
@@ -53,7 +53,6 @@ ServerMediaSession* DemoH264RTSPServer::lookupServerMediaSession(const char* str
 				DemoH264MediaSubsession *session = DemoH264MediaSubsession::createNew(envir(), streamType, videoType, channelNO, false);
 
 				sms->addSubsession(session);
-				this->addServerMediaSession(sms);
 			}
 			break;
 		case 1:
@@ -65,6 +64,7 @@ ServerMediaSession* DemoH264RTSPServer::lookupServerMediaSession(const char* str
 			break;
 
 	}
+				this->addServerMediaSession(sms);
 	return sms;
 }
 
@@ -102,6 +102,7 @@ DemoH264RTSPServer::DemoH264RTSPClientSession::DemoH264RTSPClientSession(DemoH26
 
 DemoH264RTSPServer::DemoH264RTSPClientSession::~DemoH264RTSPClientSession()
 {
+	/*
 	std::list<DemoH264RTSPServer::DemoH264RTSPClientSession*> ::iterator pos =
 		((DemoH264RTSPServer&)fOurServer).fClientSessionList.begin();
 	for(pos; pos != ((DemoH264RTSPServer&)fOurServer).fClientSessionList.end(); pos ++ )
@@ -113,5 +114,6 @@ DemoH264RTSPServer::DemoH264RTSPClientSession::~DemoH264RTSPClientSession()
 			break ;
 		}
 	}
+	*/
 }
 
