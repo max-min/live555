@@ -26,7 +26,7 @@ DemoH264MediaSubsession* DemoH264MediaSubsession::createNew(UsageEnvironment& en
 
 FramedSource* DemoH264MediaSubsession::createNewStreamSource(unsigned clientsessionId, unsigned& estBitrate)
 {
-	//estBitrate = 1000;
+	DBG_LIVE555_PRINT("create new stream source !\n");
 
 	//这里根据实际请求的类型创建不同的source对象
 	if(fVideoType == 0x01)
@@ -67,8 +67,11 @@ RTPSink* DemoH264MediaSubsession::createNewRTPSink(Groupsock* rtpGroupsock, unsi
 {
 	// 这里可以根据类型的不同创建不同sink 
 	// 根据实际开发需要，继承不同的子类
+	DBG_LIVE555_PRINT("createNewRTPnk videoType:%d!\n", fVideoType );
 	if( fVideoType == 0x01)
+	{
 		return H264VideoRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic);
+	}
 	else if( fVideoType == 0x02)
 	{ //  Mpeg-4
 		

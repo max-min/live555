@@ -33,6 +33,7 @@ DemoH264FrameSource* DemoH264FrameSource::createNew(UsageEnvironment& env, int s
 		DBG_LIVE555_PRINT("open the source stream failed!\n");
 		return NULL;
 	}
+	DBG_LIVE555_PRINT("create H264FrameSource !\n");
 	return new DemoH264FrameSource(env, sourceHandle, sourceType);
 	
 }
@@ -60,7 +61,7 @@ void DemoH264FrameSource::doGetNextFrame()
 		ret = getStreamData(fSourceHandle, fDataBuf,&fLastBufSize, &fLeftDataSize,fSourceType);
 		if (ret <= 0)
 		{
-			printf("getStreamData failed!\n");
+			DBG_LIVE555_PRINT("getStreamData failed!\n");
 			return;
 		}
 	}

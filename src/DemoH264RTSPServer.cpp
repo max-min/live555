@@ -11,7 +11,10 @@ DemoH264RTSPServer* DemoH264RTSPServer::createNew(UsageEnvironment& env,  Port r
 
 	rtspSock = setUpOurSocket(env, rtspPort);
 	if(rtspSock == -1 )
+	{
+		DBG_LIVE555_PRINT("setUpOurSocket failed\n");
 		return NULL;
+	}
 	return new DemoH264RTSPServer(env, rtspSock, rtspPort, authDatabase, reclamationTestSeconds);
 	
 }

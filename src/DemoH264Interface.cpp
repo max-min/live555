@@ -88,7 +88,7 @@ void DemoH264Interface::InitLive555(void *param)
 {
 	//初始化
 		
-	DBG_LIVE555_PRINT(" ~~~~live555 stream start\n");
+	DBG_LIVE555_PRINT(" ~~~~Init live555 stream\n");
 	
 	// Begin by setting up the live555 usage environment 
 	m_scheduler = BasicTaskScheduler::createNew();
@@ -112,6 +112,8 @@ int DemoH264Interface::startLive555()
 		DBG_LIVE555_PRINT("Not Init the live server !\n");
 		return -1; 
 	}
+	
+	DBG_LIVE555_PRINT(" ~~~~Start live555 stream\n");
 
 	// 建立RTSP服务
 	m_rtspServer = DemoH264RTSPServer::createNew(*m_env, m_rtspServerPortNum, m_authDB);
@@ -132,6 +134,7 @@ int DemoH264Interface::startLive555()
 
 int DemoH264Interface::stopLive555()
 {
+	DBG_LIVE555_PRINT(" ~~~~stop live555 stream\n");
 	if(m_liveServerFlag)
 	{
 		if(m_rtspServer)
